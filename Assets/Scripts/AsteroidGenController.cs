@@ -16,20 +16,20 @@ public class AsteroidGenController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        foreach(Rigidbody2D rb in asteroidsRb){
-            rb.AddForce(new Vector2(0,-100), ForceMode2D.Impulse);
-        }
+    // void Update()
+    // {
+    //     foreach(Rigidbody2D rb in asteroidsRb){
+    //         rb.AddForce(new Vector2(0,-100), ForceMode2D.Impulse);
+    //     }
 
-        nextAsteroid -= Time.deltaTime;
-        // spawn new asteroid
-        if (nextAsteroid <= 0) {
-            GameObject asteroid = asteroidPrefabs[Random.Range(0, asteroidPrefabs.Length)];
-            asteroid.transform.position = new Vector2(-2, 7);
-            asteroidsRb.Add(asteroid.GetComponent<Rigidbody2D>());
-            Instantiate(asteroid);
-            nextAsteroid = 10.5f;
-        }
-    }
+    //     nextAsteroid -= Time.deltaTime;
+    //     // spawn new asteroid
+    //     if (nextAsteroid <= 0) {
+    //         GameObject asteroid = asteroidPrefabs[Random.Range(0, asteroidPrefabs.Length)];
+    //         asteroid.transform.position = new Vector2(-2, 7);
+    //         asteroidsRb.Add(asteroid.GetComponent<Rigidbody2D>());
+    //         Instantiate(asteroid);
+    //         nextAsteroid = 10.5f;
+    //     }
+    // }
 }

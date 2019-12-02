@@ -8,7 +8,6 @@ public class ImpulseController : MonoBehaviour
 {
     public float thrust = 10.0f;
     public float maxSpeed = 3.0f;
-    public float torqueForce = 5.0f;
     private Rigidbody2D rb2D;
 
     private Vector2 startingPosition;
@@ -17,9 +16,13 @@ public class ImpulseController : MonoBehaviour
 
     private float sqrMaxVelocity;
 
-    private int torqueDirection;
+    private bool stabilized;
 
-    public bool stabilize;
+    public float rotationModule;
+
+    public float rotateSpeed = 0.1f;
+
+    Quaternion originalRotation;
 
     // Start is called before the first frame update
     void Start()
@@ -27,6 +30,8 @@ public class ImpulseController : MonoBehaviour
         rb2D = gameObject.GetComponent<Rigidbody2D>();
         startingPosition = transform.position;
         sqrMaxVelocity = maxSpeed * maxSpeed;
+        stabilized = false;
+        originalRotation = transform.rotation;
     }
 
     // Update is called once per frame
@@ -35,39 +40,32 @@ public class ImpulseController : MonoBehaviour
         // Reload scene when push Return
         if (Input.GetKeyDown(KeyCode.Return)){
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            // transform.position = startingPosition;
-            // rb2D.velocity = new Vector3(0f,0f,0f);
-            // // reset rotation and rotation velocity
-            // transform.rotation = Quaternion.identity;
-            // rb2D.angularVelocity = 0f;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && rb2D.rotation != 0)
-        {
-            stabilize = true;
-        }
+        // if (Input.GetKeyDown(KeyCode.Space) && rb2D.rotation != 0)
+        // {
+        //     stabilized = true;
+        // }
 
         movement.x = Input.GetAxis("Horizontal");
         movement.y = Input.GetAxis("Vertical");
 
-        bool torqueLeft = Input.GetMouseButton(0);
-        bool torqueRight = Input.GetMouseButton(1);
-
-        if (torqueLeft || torqueRight)
+        if (!stabilized && rb2D.angularVelocity != 0 && Mathf.Abs(rb2D.angularVelocity) < 10.0f)
         {
-            torqueDirection = torqueLeft ? 1 : -1;
+            Debug.Log("TIme to bring the character to the original position");
+            // float rotation = rb2D.rotation;
+            stabilized = true;
         }
+
+        rotationModule = rb2D.rotation % 360.0f;
 
     }
 
     void FixedUpdate()
     {
+
         // Apply Impulse Force registered in Updated
         rb2D.AddForce(movement * thrust * Time.fixedDeltaTime, ForceMode2D.Impulse);
-
-        // Apply torque force registred in Updated
-        // torqueDirection is gonna determine the direction (1 or -1)
-        rb2D.AddTorque(torqueDirection * torqueForce * Time.fixedDeltaTime);
 
         // Clamp the velocity if it grater than defined maxVelocity
         // https://answers.unity.com/questions/1269757/how-to-get-rigidbody-velocity.html
@@ -77,5 +75,16 @@ public class ImpulseController : MonoBehaviour
         if (vel.sqrMagnitude > sqrMaxVelocity) {
             rb2D.velocity = vel.normalized * maxSpeed;
         }
+
+        if (stabilized) {
+            transform.rotation = Quaternion.Lerp(transform.rotation,originalRotation,Time.fixedDeltaTime * rotateSpeed);
+
+            if(transform.rotation == originalRotation)
+             {
+                 stabilized = false;
+             }
+        }
+
+
     }
 }

@@ -17,6 +17,6 @@ public class UIController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        text.text = "Velocity " + playerRB.velocity + "/ Torque = " + playerRB.rotation;
+        text.text = "Velocity " + playerRB.velocity;
     }
 }
