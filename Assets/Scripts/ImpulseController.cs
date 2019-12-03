@@ -56,6 +56,9 @@ public class ImpulseController : MonoBehaviour
         if (torqueLeft || torqueRight)
         {
             torqueDirection = torqueLeft ? 1 : -1;
+        }else
+        {
+            torqueDirection = 0;
         }
 
     }

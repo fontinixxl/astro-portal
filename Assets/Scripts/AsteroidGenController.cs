@@ -31,5 +31,5 @@ public class AsteroidGenController : MonoBehaviour
     //         Instantiate(asteroid);
     //         nextAsteroid = 10.5f;
     //     }
-    // }
+    }
 }
