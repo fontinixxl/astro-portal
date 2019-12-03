@@ -237,6 +237,7 @@ MonoBehaviour:
   thrust: 10
   maxSpeed: 3
   torqueForce: 10
+  stabilize: 0
 --- !u!50 &392893205
 Rigidbody2D:
   serializedVersion: 4
