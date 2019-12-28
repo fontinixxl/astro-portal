@@ -9,8 +9,6 @@ public class PlayerController2D : MonoBehaviour
 
     public float moveSpeed = 5;
     public float jumpVelocity = 11;
-    private float horizontalDirection;
-    private float verticalDirection = 0;
     private Rigidbody2D rigidbody2d;
     private BoxCollider2D boxCollider2d;
     private SpriteRenderer spriteRenderer;
@@ -20,11 +18,11 @@ public class PlayerController2D : MonoBehaviour
     private Collider2D platformCollider;
     [SerializeField]
     private float climbingSpeed = 2.5f;
-    public bool ladder;
+    public bool ladderZone;
 
     private float gravityScale;
 
-    // private bool ladder = false;
+    // private bool ladderZone = false;
 
     private void Awake()
     {
@@ -45,54 +43,38 @@ public class PlayerController2D : MonoBehaviour
         {
             rigidbody2d.velocity = Vector2.up * jumpVelocity;
         }
-        HandleMovement();
 
-        HandleLadderMovement();
+        float verticalInput = Input.GetAxisRaw("Vertical");
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalVelocity = 0;
+        bool climbing = false;
+
+        if (ladderZone && Mathf.Abs(verticalInput) > 0) {
+            Physics2D.IgnoreCollision(playerCollider2d, platformCollider, true);
+            rigidbody2d.gravityScale = 0;
+            verticalVelocity = verticalInput * climbingSpeed;
+            climbing = true;
+        }
+
+        if (!ladderZone){
+            verticalVelocity = rigidbody2d.velocity.y;
+            Physics2D.IgnoreCollision(playerCollider2d, platformCollider, false);
+            rigidbody2d.gravityScale = gravityScale;
+            climbing = false;
+        }
+
+        rigidbody2d.velocity = new Vector2(horizontalInput * moveSpeed, verticalVelocity);
+        FlipSprite(horizontalInput);
 
         // -- ANIMATION --
         animator.SetFloat ("velocityX", Mathf.Abs (rigidbody2d.velocity.x) / moveSpeed);
+        animator.SetFloat("velocityY", Mathf.Abs(verticalInput) / climbingSpeed);
         animator.SetBool("jumping", !grounded);
-        // animator.SetFloat("velocityY", rigidbody2d.velocity.y);
+        animator.SetBool("climbing", climbing);
     }
-
-    private void HandleMovement()
+    void FlipSprite(float horizontalInput)
     {
-        // -- HORIZONTAL MOVEMENT --
-        // horizontalDirection = Input.GetAxisRaw("Horizontal");
-        horizontalDirection = Input.GetAxis("Horizontal");
-        rigidbody2d.velocity = new Vector2(horizontalDirection * moveSpeed, rigidbody2d.velocity.y);
-        FlipSprite();
-    }
-
-    private void HandleLadderMovement()
-    {
-        float verticalMovement = Input.GetAxisRaw("Vertical");
-
-        if (ladder)
-        {
-            if (verticalMovement != 0f)
-            {
-                Physics2D.IgnoreCollision(playerCollider2d, platformCollider, true);
-                rigidbody2d.gravityScale = 0;
-                rigidbody2d.velocity = new Vector2(rigidbody2d.velocity.x, verticalMovement * climbingSpeed);
-                animator.SetBool("climbing", true);
-            }
-            else
-            {
-                rigidbody2d.velocity = new Vector2(rigidbody2d.velocity.x, 0);
-            }
-        }
-        else
-        {
-            Physics2D.IgnoreCollision(playerCollider2d, platformCollider, false);
-            rigidbody2d.gravityScale = gravityScale;
-            animator.SetBool("climbing", false);
-        }
-        animator.SetFloat("velocityY", Mathf.Abs(verticalMovement));
-    }
-    void FlipSprite()
-    {
-        bool flipSprite = (spriteRenderer.flipX ? (horizontalDirection > 0.01f) : (horizontalDirection < 0f));
+        bool flipSprite = (spriteRenderer.flipX ? (horizontalInput > 0.01f) : (horizontalInput < 0f));
         if (flipSprite)
         {
             spriteRenderer.flipX = !spriteRenderer.flipX;
@@ -107,9 +89,9 @@ public class PlayerController2D : MonoBehaviour
         return raycastHit2d.collider != null;
     }
 
-    public void ClimbLadder(bool climbing)
+    public void LadderZone(bool state)
     {
-        ladder = climbing;
+        ladderZone = state;
 
     }
 
