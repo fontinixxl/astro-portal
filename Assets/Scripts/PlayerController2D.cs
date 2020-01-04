@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public class PlayerController2D : MonoBehaviour
@@ -18,11 +19,17 @@ public class PlayerController2D : MonoBehaviour
     private Collider2D platformCollider;
     [SerializeField]
     private float climbingSpeed = 2.5f;
-    public bool ladderZone;
-
+    private bool ladderZone;
+    private bool climbing;
     private float gravityScale;
-
-    // private bool ladderZone = false;
+    private bool playerCanMove;
+    public int maxHealth = 1;
+    public int health { get { return currentHealth; } }
+    int currentHealth;
+    AudioSource audioSource;
+    public AudioClip jumpSound;
+    public AudioClip playerHit;
+    public Transform respawnPosition;
 
     private void Awake()
     {
@@ -31,42 +38,51 @@ public class PlayerController2D : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer> ();
         animator = GetComponent<Animator> ();
         playerCollider2d = GetComponent<Collider2D>();
-
+        audioSource = GetComponent<AudioSource>();
         gravityScale = rigidbody2d.gravityScale;
+        climbing = false;
+        currentHealth = maxHealth;
+        playerCanMove = true;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!playerCanMove)
+            return;
+
         bool grounded = IsGrounded();
         if (grounded && Input.GetKeyDown(KeyCode.Space))
         {
             rigidbody2d.velocity = Vector2.up * jumpVelocity;
+            audioSource.PlayOneShot(jumpSound);
         }
 
         float verticalInput = Input.GetAxisRaw("Vertical");
         float horizontalInput = Input.GetAxis("Horizontal");
+        // initial Y velocity to zero in case Player is not moving while climbing
         float verticalVelocity = 0;
-        bool climbing = false;
 
-        if (ladderZone && Mathf.Abs(verticalInput) > 0) {
+        // player is climbing (applying vertical movement) in the ladder
+        if (ladderZone && Mathf.Abs(verticalInput) > 0.01f) {
             Physics2D.IgnoreCollision(playerCollider2d, platformCollider, true);
             rigidbody2d.gravityScale = 0;
             verticalVelocity = verticalInput * climbingSpeed;
             climbing = true;
         }
-
+        // player not climbing
         if (!ladderZone){
             verticalVelocity = rigidbody2d.velocity.y;
-            Physics2D.IgnoreCollision(playerCollider2d, platformCollider, false);
+            if (platformCollider != null)
+                Physics2D.IgnoreCollision(playerCollider2d, platformCollider, false);
             rigidbody2d.gravityScale = gravityScale;
             climbing = false;
         }
 
-        rigidbody2d.velocity = new Vector2(horizontalInput * moveSpeed, verticalVelocity);
         FlipSprite(horizontalInput);
+        rigidbody2d.velocity = new Vector2(horizontalInput * moveSpeed, verticalVelocity);
 
-        // -- ANIMATION --
+        // -- ANIMATION --;
         animator.SetFloat ("velocityX", Mathf.Abs (rigidbody2d.velocity.x) / moveSpeed);
         animator.SetFloat("velocityY", Mathf.Abs(verticalInput) / climbingSpeed);
         animator.SetBool("jumping", !grounded);
@@ -89,10 +105,74 @@ public class PlayerController2D : MonoBehaviour
         return raycastHit2d.collider != null;
     }
 
+    public void ChangeHealth(int amount)
+    {
+        if (amount < 0)
+        {
+            audioSource.PlayOneShot(playerHit);
+            // if (isInvincible)
+            //     return;
+
+            // animator.SetTrigger("Hit");
+
+            // Instantiate(hitEffect, rigidbody2d.position + Vector2.up * 0.5f, Quaternion.identity);
+            // PlaySound(HitClip);
+
+            // isInvincible = true;
+            // invincibleTimer = timeInvincible;
+        }
+
+        currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
+        if (currentHealth == 0) {
+            DisablePlayerMovements();
+            Invoke("Respawn", .5f);
+        }
+        // UIHealthBar.Instance.SetValue(currentHealth / (float)maxHealth);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.tag == "Exit")
+        {
+            DisablePlayerMovements();
+            Invoke("NextLevel", 1f);
+        }
+    }
+
+
+    public void DisablePlayerMovements()
+    {
+        playerCanMove = false;
+        rigidbody2d.velocity = Vector2.zero;
+        rigidbody2d.gravityScale = 0;
+        animator.enabled = false;
+    }
+    private void NextLevel()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex+1);
+    }
+
+    void Respawn()
+    {
+        ChangeHealth(maxHealth);
+        transform.position = respawnPosition.position;
+        playerCanMove = true;
+        animator.enabled = true;
+        rigidbody2d.gravityScale = gravityScale;
+    }
+
     public void LadderZone(bool state)
     {
         ladderZone = state;
-
     }
 
+    private void ReloadLevel()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void PlaySound(AudioClip clip)
+    {
+        audioSource.PlayOneShot(clip);
+    }
 }
