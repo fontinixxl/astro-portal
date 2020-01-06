@@ -6,6 +6,7 @@ TagManager:
   tags:
   - ladder
   - Exit
+  - lever
   layers:
   - Default
   - TransparentFX
@@ -19,7 +20,7 @@ TagManager:
   - Player
   - Ground
   - Confiner
-  - 
+  - Ladder
   - 
   - 
   - 

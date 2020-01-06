@@ -16,8 +16,6 @@ public class PlayerController2D : MonoBehaviour
     private Collider2D playerCollider2d;
     private Animator animator;
     [SerializeField]
-    private Collider2D platformCollider;
-    [SerializeField]
     private float climbingSpeed = 2.5f;
     private bool ladderZone;
     private bool climbing;
@@ -30,6 +28,7 @@ public class PlayerController2D : MonoBehaviour
     public AudioClip jumpSound;
     public AudioClip playerHit;
     public Transform respawnPosition;
+    public bool playerGrounded;
 
     private void Awake()
     {
@@ -52,6 +51,9 @@ public class PlayerController2D : MonoBehaviour
             return;
 
         bool grounded = IsGrounded();
+        //DEGUG:
+        playerGrounded = grounded;
+        //END DEBUG
         if (grounded && Input.GetKeyDown(KeyCode.Space))
         {
             rigidbody2d.velocity = Vector2.up * jumpVelocity;
@@ -65,7 +67,7 @@ public class PlayerController2D : MonoBehaviour
 
         // player is climbing (applying vertical movement) in the ladder
         if (ladderZone && Mathf.Abs(verticalInput) > 0.01f) {
-            Physics2D.IgnoreCollision(playerCollider2d, platformCollider, true);
+            // Physics2D.IgnoreCollision(playerCollider2d, platformCollider, true);
             rigidbody2d.gravityScale = 0;
             verticalVelocity = verticalInput * climbingSpeed;
             climbing = true;
@@ -73,8 +75,8 @@ public class PlayerController2D : MonoBehaviour
         // player not climbing
         if (!ladderZone){
             verticalVelocity = rigidbody2d.velocity.y;
-            if (platformCollider != null)
-                Physics2D.IgnoreCollision(playerCollider2d, platformCollider, false);
+            // if (playerCollider2d != null)
+                // Physics2D.IgnoreCollision(playerCollider2d, platformCollider, false);
             rigidbody2d.gravityScale = gravityScale;
             climbing = false;
         }
@@ -100,7 +102,7 @@ public class PlayerController2D : MonoBehaviour
     private bool IsGrounded()
     {
         RaycastHit2D raycastHit2d = Physics2D.BoxCast(boxCollider2d.bounds.center,
-            boxCollider2d.bounds.size, 0f, Vector2.down, 1f, platformsLayerMask);
+            boxCollider2d.bounds.size, 0f, Vector2.down, 0.2f, platformsLayerMask);
 
         return raycastHit2d.collider != null;
     }
@@ -132,7 +134,7 @@ public class PlayerController2D : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.tag == "Exit")
+        if (other.tag == "Exit" && other.GetComponent<PortalController>().isOpen)
         {
             DisablePlayerMovements();
             Invoke("NextLevel", 1f);
