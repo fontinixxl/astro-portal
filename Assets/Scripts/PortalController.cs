@@ -25,13 +25,9 @@ public class PortalController : MonoBehaviour
         }
     }
 
-    public void OpenClosePortal(bool leverOn)
+    public void OpenPortal()
     {
-        if (leverOn) {
-            spriteRenderer.sprite = portalOnSprite;
-        } else {
-            spriteRenderer.sprite = portalOffSprite;
-        }
-        portalOpen = leverOn;
+        spriteRenderer.sprite = portalOnSprite;
+        portalOpen = true;
     }
 }
