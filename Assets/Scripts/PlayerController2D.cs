@@ -41,13 +41,12 @@ public class PlayerController2D : MonoBehaviour
         gravityScale = rigidbody2d.gravityScale;
         climbing = false;
         currentHealth = maxHealth;
-        playerCanMove = true;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!playerCanMove)
+        if (!GameManager.instance.playerCanMove)
             return;
 
         bool grounded = IsGrounded();
@@ -144,7 +143,7 @@ public class PlayerController2D : MonoBehaviour
 
     public void DisablePlayerMovements()
     {
-        playerCanMove = false;
+        GameManager.instance.playerCanMove = false;
         rigidbody2d.velocity = Vector2.zero;
         rigidbody2d.gravityScale = 0;
         animator.enabled = false;
@@ -158,7 +157,7 @@ public class PlayerController2D : MonoBehaviour
     {
         ChangeHealth(maxHealth);
         transform.position = respawnPosition.position;
-        playerCanMove = true;
+        GameManager.instance.playerCanMove = true;
         animator.enabled = true;
         rigidbody2d.gravityScale = gravityScale;
     }

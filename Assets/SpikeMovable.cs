@@ -9,16 +9,21 @@ public class SpikeMovable : MonoBehaviour
     Rigidbody2D rigidbody2d;
 	float remainingTimeToChange;
     Vector2 direction = Vector2.right;
+    private Vector2 respawnPosition;
     // Start is called before the first frame update
     void Start()
     {
         rigidbody2d = GetComponent<Rigidbody2D>();
+        respawnPosition = (Vector2) GetComponent<Transform>().position;
 		remainingTimeToChange = timeToChange;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!GameManager.instance.playerCanMove)
+            return;
+
         remainingTimeToChange -= Time.deltaTime;
 
 		if (remainingTimeToChange <= 0)
