@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
-    public MainMenuController mainMenuController;
+    // public UIManager UI;
     
     // [HideInInspector]
     public bool playerCanMove = false;
@@ -40,33 +40,31 @@ public class GameManager : MonoBehaviour
     {
         instance.playerCanMove = true;
         // show menu
-        mainMenuController.ShowMenu();
+        UIManager.instance.ShowMenu();
         // pause game untill the start button is click
         instance.PauseGame();
     }
 
     private void Update()
     {
-        // if (Input.GetKeyDown("escape")){
-        //     TogglePauseMenu();
-        // }
+        if (Input.GetKeyDown("escape")){
+            instance.PauseGame();
+            UIManager.instance.ShowMenu();
+        }
     }
 
     public void ResumeGameplay()
     {
         instance.ResumeGame();
-        mainMenuController.HideMenu();
-        // instance.playerCanMove = !instance.playerCanMove;
+        UIManager.instance.HideMenu();
     }
 
     public void PauseGame()
     {
-        // instance.playerCanMove = false;
         Time.timeScale = 0f;
     }
     public void ResumeGame()
     {
-        // instance.playerCanMove = true;
         Time.timeScale = 1.0f;
     }
 
