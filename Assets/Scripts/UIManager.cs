@@ -17,7 +17,6 @@ public class UIManager : MonoBehaviour
 
         //If instance already exists and it's not this:
         else if (instance != this)
-            //Then destroy this. This enforces our singleton pattern, meaning there can only ever be one instance of a GameManager.
             Destroy(gameObject);
 
         DontDestroyOnLoad(gameObject);

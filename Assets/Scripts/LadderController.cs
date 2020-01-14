@@ -15,7 +15,6 @@ public class LadderController : MonoBehaviour
         }
     }
 
-
     void OnTriggerStay2D (Collider2D other)
     {
         if (other.tag == "Player" )

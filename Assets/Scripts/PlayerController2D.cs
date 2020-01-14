@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public class PlayerController2D : MonoBehaviour
 {
     // LayerMask we are using to check if we are grounded.
     [SerializeField] private LayerMask platformsLayerMask;
-
     public float moveSpeed = 5;
     public float jumpVelocity = 11;
     private Rigidbody2D rigidbody2d;
@@ -20,7 +17,6 @@ public class PlayerController2D : MonoBehaviour
     private bool ladderZone;
     private bool climbing;
     private float gravityScale;
-    private bool playerCanMove;
     public int maxHealth = 1;
     public int health { get { return currentHealth; } }
     int currentHealth;
@@ -28,7 +24,6 @@ public class PlayerController2D : MonoBehaviour
     public AudioClip jumpSound;
     public AudioClip playerHit;
     public Transform respawnPosition;
-    public bool playerGrounded;
 
     private void Awake()
     {
@@ -38,6 +33,7 @@ public class PlayerController2D : MonoBehaviour
         animator = GetComponent<Animator> ();
         playerCollider2d = GetComponent<Collider2D>();
         audioSource = GetComponent<AudioSource>();
+
         gravityScale = rigidbody2d.gravityScale;
         climbing = false;
         currentHealth = maxHealth;
@@ -50,9 +46,6 @@ public class PlayerController2D : MonoBehaviour
             return;
 
         bool grounded = IsGrounded();
-        //DEGUG:
-        playerGrounded = grounded;
-        //END DEBUG
         if (grounded && Input.GetKeyDown(KeyCode.Space))
         {
             rigidbody2d.velocity = Vector2.up * jumpVelocity;
@@ -66,7 +59,6 @@ public class PlayerController2D : MonoBehaviour
 
         // player is climbing (applying vertical movement) in the ladder
         if (ladderZone && Mathf.Abs(verticalInput) > 0.01f) {
-            // Physics2D.IgnoreCollision(playerCollider2d, platformCollider, true);
             rigidbody2d.gravityScale = 0;
             verticalVelocity = verticalInput * climbingSpeed;
             climbing = true;
@@ -74,8 +66,6 @@ public class PlayerController2D : MonoBehaviour
         // player not climbing
         if (!ladderZone){
             verticalVelocity = rigidbody2d.velocity.y;
-            // if (playerCollider2d != null)
-                // Physics2D.IgnoreCollision(playerCollider2d, platformCollider, false);
             rigidbody2d.gravityScale = gravityScale;
             climbing = false;
         }
@@ -83,7 +73,7 @@ public class PlayerController2D : MonoBehaviour
         FlipSprite(horizontalInput);
         rigidbody2d.velocity = new Vector2(horizontalInput * moveSpeed, verticalVelocity);
 
-        // -- ANIMATION --;
+        // -- ANIMATION --
         animator.SetFloat ("velocityX", Mathf.Abs (rigidbody2d.velocity.x) / moveSpeed);
         animator.SetFloat("velocityY", Mathf.Abs(verticalInput) / climbingSpeed);
         animator.SetBool("jumping", !grounded);
@@ -111,16 +101,6 @@ public class PlayerController2D : MonoBehaviour
         if (amount < 0)
         {
             audioSource.PlayOneShot(playerHit);
-            // if (isInvincible)
-            //     return;
-
-            // animator.SetTrigger("Hit");
-
-            // Instantiate(hitEffect, rigidbody2d.position + Vector2.up * 0.5f, Quaternion.identity);
-            // PlaySound(HitClip);
-
-            // isInvincible = true;
-            // invincibleTimer = timeInvincible;
         }
 
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
@@ -128,7 +108,6 @@ public class PlayerController2D : MonoBehaviour
             DisablePlayerMovements();
             Invoke("Respawn", .5f);
         }
-        // UIHealthBar.Instance.SetValue(currentHealth / (float)maxHealth);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -165,15 +144,5 @@ public class PlayerController2D : MonoBehaviour
     public void LadderZone(bool state)
     {
         ladderZone = state;
-    }
-
-    private void ReloadLevel()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
-    public void PlaySound(AudioClip clip)
-    {
-        audioSource.PlayOneShot(clip);
     }
 }
