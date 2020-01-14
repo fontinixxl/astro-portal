@@ -4,6 +4,7 @@ My first Unity Game submitted as the final project of CS50G Introduction to Game
 ## Game
 AstroPortal is a simple 2D platformer game using PixelArt. Your goal is to complete all the levels, in which you have to reach the corresponding portal.
 In the second level, in order to open the portal, you will have to switch on the lever.
+This is a prototype Demo, so there are only 2 levels available and a Credit Screen.
 
 ### Art
 For the art I used the [Free Pixel Space Platform Pack](https://assetstore.unity.com/packages/2d/characters/free-pixel-space-platform-pack-146318) from the Unity Asset Store.
