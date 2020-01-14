@@ -15,6 +15,10 @@ For the Level design, I used the Tile Palette with different layers.
 
 The character is using a simple Dynamic RigidBoby for the movement and 2D colliders.
 
+## ScreenShots
+![](Screenshots/Menu.png)
+![](Screenshots/Level_2.png)
+
 ## Bugs
 Right now there are a bunch of bugs present in the game:
 * Buttons on the menu don't work properly; in the second level they don't respond at all.
